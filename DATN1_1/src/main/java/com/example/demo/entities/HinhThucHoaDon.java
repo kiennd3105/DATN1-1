@@ -34,10 +34,8 @@ public class HinhThucHoaDon {
     private int TRANGTHAI ;
     @Column(name="HINHTHUCTHANHTOAN")
     private int HINHTHUCTHANHTOAN ;
-
-    @OneToOne
-    @JoinColumn(name="IDHD")
-    private HoaDon hoaDon;
+    @Column(name="IDHD")
+    private int IDHD;
 
 
 }

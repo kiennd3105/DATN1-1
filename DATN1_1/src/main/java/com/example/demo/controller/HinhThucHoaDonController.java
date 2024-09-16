@@ -20,19 +20,10 @@ public class HinhThucHoaDonController {
     @Autowired
     private HinhThucHoaDonRepo hinhThucHoaDonRepository;
 
-    @Autowired
-    private HoaDonRepo hoaDonRepository;
-
     // Thêm mới
     @PostMapping("/add")
     public ResponseEntity<String> addHinhThucHoaDon(@Valid @RequestBody HinhThucHoaDonRequest request) {
         try {
-            // Kiểm tra xem HoaDon có tồn tại không
-            Optional<HoaDon> optionalHoaDon = hoaDonRepository.findById(request.getIDHD());
-            if (optionalHoaDon.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hóa đơn không tồn tại");
-            }
-
             HinhThucHoaDon entity = new HinhThucHoaDon();
             entity.setMAGIAODICH(request.getMAGIAODICH());
             entity.setNGAYTAO(request.getNGAYTAO());
@@ -42,12 +33,12 @@ public class HinhThucHoaDonController {
             entity.setGHICHU(request.getGHICHU());
             entity.setTRANGTHAI(request.getTRANGTHAI());
             entity.setHINHTHUCTHANHTOAN(request.getHINHTHUCTHANHTOAN());
-            entity.setHoaDon(optionalHoaDon.get());
+            entity.setIDHD(request.getIDHD());
 
             hinhThucHoaDonRepository.save(entity);
             return ResponseEntity.status(HttpStatus.CREATED).body("Thêm mới thành công");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Thêm mới thất bại");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Thêm mới thất bại: " + e.getMessage());
         }
     }
 
@@ -58,12 +49,6 @@ public class HinhThucHoaDonController {
 
         if (optionalHinhThucHoaDon.isPresent()) {
             try {
-                // Kiểm tra xem HoaDon có tồn tại không
-                Optional<HoaDon> optionalHoaDon = hoaDonRepository.findById(request.getIDHD());
-                if (optionalHoaDon.isEmpty()) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hóa đơn không tồn tại");
-                }
-
                 HinhThucHoaDon entity = optionalHinhThucHoaDon.get();
                 entity.setMAGIAODICH(request.getMAGIAODICH());
                 entity.setNGAYTAO(request.getNGAYTAO());
@@ -73,12 +58,12 @@ public class HinhThucHoaDonController {
                 entity.setGHICHU(request.getGHICHU());
                 entity.setTRANGTHAI(request.getTRANGTHAI());
                 entity.setHINHTHUCTHANHTOAN(request.getHINHTHUCTHANHTOAN());
-                entity.setHoaDon(optionalHoaDon.get());
+                entity.setIDHD(request.getIDHD());
 
                 hinhThucHoaDonRepository.save(entity);
                 return ResponseEntity.ok("Cập nhật thành công");
             } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại: " + e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy hình thức hóa đơn");
@@ -96,7 +81,7 @@ public class HinhThucHoaDonController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy hình thức hóa đơn");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Xóa thất bại");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Xóa thất bại: " + e.getMessage());
         }
     }
 

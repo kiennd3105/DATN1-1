@@ -22,9 +22,7 @@ public class LichSuHoaDon {
     private int TRANGTHAI ;
     @Column(name="NGUOITHAOTAC")
     private  String NGUOITHAOTAC ;
-
-    @OneToOne
-    @JoinColumn(name="IDHD")
-    private HoaDon hoaDon;
+    @Column(name="IDHD")
+    private Long IDHD;
 
 }

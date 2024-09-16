@@ -20,18 +20,10 @@ public class ChiTietHoaDonController {
     @Autowired
     private ChiTietHoaDonRepo chiTietHoaDonRepo;
 
-    @Autowired
-    private HoaDonRepo hoaDonRepo;
-
     // Thêm mới
     @PostMapping("/add")
     public ResponseEntity<String> addChiTietHoaDon(@Valid @RequestBody ChiTietHoaDonRequest request) {
         try {
-            Optional<HoaDon> hoaDonOpt = hoaDonRepo.findById(request.getIDHOADON());
-            if (!hoaDonOpt.isPresent()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hóa đơn không tồn tại");
-            }
-
             ChiTietHoaDon entity = new ChiTietHoaDon();
             entity.setMACTHD(request.getMACTHD());
             entity.setTONGTIEN(request.getTONGTIEN());
@@ -40,14 +32,14 @@ public class ChiTietHoaDonController {
             entity.setTRANGTHAI(request.getTRANGTHAI());
             entity.setNGAYTAO(request.getNGAYTAO());
             entity.setNGAYSUA(request.getNGAYSUA());
-            entity.setHoaDon(hoaDonOpt.get());
+            entity.setIDHOADON(request.getIDHOADON());  // Lưu trực tiếp ID của hóa đơn
             entity.setIDCTSP(request.getIDCTSP());
             entity.setGHICHU(request.getGHICHU());
 
             chiTietHoaDonRepo.save(entity);
             return ResponseEntity.status(HttpStatus.CREATED).body("Thêm mới thành công");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Thêm mới thất bại");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Thêm mới thất bại: " + e.getMessage());
         }
     }
 
@@ -59,12 +51,6 @@ public class ChiTietHoaDonController {
         if (optionalChiTietHoaDon.isPresent()) {
             try {
                 ChiTietHoaDon entity = optionalChiTietHoaDon.get();
-
-                Optional<HoaDon> hoaDonOpt = hoaDonRepo.findById(request.getIDHOADON());
-                if (!hoaDonOpt.isPresent()) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Hóa đơn không tồn tại");
-                }
-
                 entity.setMACTHD(request.getMACTHD());
                 entity.setTONGTIEN(request.getTONGTIEN());
                 entity.setSOLUONG(request.getSOLUONG());
@@ -72,14 +58,14 @@ public class ChiTietHoaDonController {
                 entity.setTRANGTHAI(request.getTRANGTHAI());
                 entity.setNGAYTAO(request.getNGAYTAO());
                 entity.setNGAYSUA(request.getNGAYSUA());
-                entity.setHoaDon(hoaDonOpt.get());
+                entity.setIDHOADON(request.getIDHOADON());  // Cập nhật ID của hóa đơn
                 entity.setIDCTSP(request.getIDCTSP());
                 entity.setGHICHU(request.getGHICHU());
 
                 chiTietHoaDonRepo.save(entity);
                 return ResponseEntity.ok("Cập nhật thành công");
             } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Cập nhật thất bại: " + e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy chi tiết hóa đơn");
@@ -97,7 +83,7 @@ public class ChiTietHoaDonController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy chi tiết hóa đơn");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Xóa thất bại");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Xóa thất bại: " + e.getMessage());
         }
     }
 
@@ -107,7 +93,7 @@ public class ChiTietHoaDonController {
         try {
             return ResponseEntity.ok(chiTietHoaDonRepo.findAll());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lấy danh sách thất bại");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lấy danh sách thất bại: " + e.getMessage());
         }
     }
 
@@ -123,3 +109,5 @@ public class ChiTietHoaDonController {
         }
     }
 }
+
+

@@ -39,9 +39,9 @@ public class HoaDon {
     @Column(name="THONGTINGIAOHANG")
     private String THONGTINGIAOHANG;
     @Column(name="IDNV")
-    private int IDNV;
+    private Long IDNV;
     @Column(name="IDKH")
-    private int IDKH;
+    private Long IDKH;
 
 
 

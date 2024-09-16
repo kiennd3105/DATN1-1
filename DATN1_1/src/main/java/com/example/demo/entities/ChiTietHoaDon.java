@@ -42,9 +42,9 @@ public class ChiTietHoaDon {
     @Column(name = "NGAYSUA")
     private Date NGAYSUA;
 
-    @OneToOne
-    @JoinColumn(name = "IDHOADON")
-    private HoaDon hoaDon;
+
+    @Column(name = "IDHOADON")
+    private Long IDHOADON;
 
     @Column(name="IDCTSP")
      private Long IDCTSP;

@@ -22,72 +22,53 @@ public class LichSuHoaDonController {
     @Autowired
     private LichSuHoaDonRepo lichSuHoaDonRepo;
 
-    @Autowired
-    private HoaDonRepo hoaDonRepo;
-
     // Tạo mới
     @PostMapping("/create")
-    public ResponseEntity<LichSuHoaDonResponse> createLichSuHoaDon(@Valid @RequestBody LichSuHoaDonRequest request) {
-        Optional<HoaDon> hoaDonOptional = hoaDonRepo.findById(request.getIDHD());
-        if (hoaDonOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
-        LichSuHoaDon lichSuHoaDon = new LichSuHoaDon();
-        lichSuHoaDon.setNGAYTAO(request.getNGAYTAO());
-        lichSuHoaDon.setTRANGTHAI(request.getTRANGTHAI());
-        lichSuHoaDon.setNGUOITHAOTAC(request.getNGUOITHAOTAC());
-        lichSuHoaDon.setHoaDon(hoaDonOptional.get());
-
+    public ResponseEntity<LichSuHoaDon> createLichSuHoaDon(@RequestBody LichSuHoaDon lichSuHoaDon) {
         LichSuHoaDon savedLichSuHoaDon = lichSuHoaDonRepo.save(lichSuHoaDon);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedLichSuHoaDon);
+    }
 
-        LichSuHoaDonResponse response = new LichSuHoaDonResponse(
-                savedLichSuHoaDon.getID(),
-                savedLichSuHoaDon.getNGAYTAO(),
-                savedLichSuHoaDon.getTRANGTHAI(),
-                savedLichSuHoaDon.getNGUOITHAOTAC(),
-                savedLichSuHoaDon.getHoaDon().getID()
-        );
+    // Lấy một LichSuHoaDon theo ID
+    @GetMapping("/get/{id}")
+    public ResponseEntity<LichSuHoaDon> getLichSuHoaDonById(@PathVariable Integer id) {
+        Optional<LichSuHoaDon> lichSuHoaDonOptional = lichSuHoaDonRepo.findById(id);
+        if (lichSuHoaDonOptional.isPresent()) {
+            return ResponseEntity.ok(lichSuHoaDonOptional.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    // list
+    @GetMapping("/list")
+    public ResponseEntity<List<LichSuHoaDon>> getAllLichSuHoaDon() {
+        List<LichSuHoaDon> lichSuHoaDonList = lichSuHoaDonRepo.findAll();
+        return ResponseEntity.ok(lichSuHoaDonList);
     }
 
     // Cập nhật
     @PutMapping("/update/{id}")
-    public ResponseEntity<LichSuHoaDonResponse> updateLichSuHoaDon(
+    public ResponseEntity<LichSuHoaDon> updateLichSuHoaDon(
             @PathVariable Integer id,
-            @Valid @RequestBody LichSuHoaDonRequest request) {
+            @RequestBody LichSuHoaDon lichSuHoaDonDetails) {
 
         Optional<LichSuHoaDon> lichSuHoaDonOptional = lichSuHoaDonRepo.findById(id);
-        if (lichSuHoaDonOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        if (lichSuHoaDonOptional.isPresent()) {
+            LichSuHoaDon lichSuHoaDon = lichSuHoaDonOptional.get();
+            lichSuHoaDon.setNGAYTAO(lichSuHoaDonDetails.getNGAYTAO());
+            lichSuHoaDon.setTRANGTHAI(lichSuHoaDonDetails.getTRANGTHAI());
+            lichSuHoaDon.setNGUOITHAOTAC(lichSuHoaDonDetails.getNGUOITHAOTAC());
+            lichSuHoaDon.setIDHD(lichSuHoaDonDetails.getIDHD());
+
+            LichSuHoaDon updatedLichSuHoaDon = lichSuHoaDonRepo.save(lichSuHoaDon);
+            return ResponseEntity.ok(updatedLichSuHoaDon);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
-        Optional<HoaDon> hoaDonOptional = hoaDonRepo.findById(request.getIDHD());
-        if (hoaDonOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-
-        LichSuHoaDon lichSuHoaDon = lichSuHoaDonOptional.get();
-        lichSuHoaDon.setNGAYTAO(request.getNGAYTAO());
-        lichSuHoaDon.setTRANGTHAI(request.getTRANGTHAI());
-        lichSuHoaDon.setNGUOITHAOTAC(request.getNGUOITHAOTAC());
-        lichSuHoaDon.setHoaDon(hoaDonOptional.get());
-
-        LichSuHoaDon updatedLichSuHoaDon = lichSuHoaDonRepo.save(lichSuHoaDon);
-
-        LichSuHoaDonResponse response = new LichSuHoaDonResponse(
-                updatedLichSuHoaDon.getID(),
-                updatedLichSuHoaDon.getNGAYTAO(),
-                updatedLichSuHoaDon.getTRANGTHAI(),
-                updatedLichSuHoaDon.getNGUOITHAOTAC(),
-                updatedLichSuHoaDon.getHoaDon().getID()
-        );
-
-        return ResponseEntity.ok(response);
     }
 
-    // Xóa
+    // Xóa một
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteLichSuHoaDon(@PathVariable Integer id) {
         if (lichSuHoaDonRepo.existsById(id)) {
@@ -97,19 +78,8 @@ public class LichSuHoaDonController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
-
-    // Lấy danh sách lịch sử hóa đơn
-    @GetMapping("/list")
-    public ResponseEntity<List<LichSuHoaDonResponse>> getLichSuHoaDonList() {
-        List<LichSuHoaDon> lichSuHoaDonList = lichSuHoaDonRepo.findAll();
-        List<LichSuHoaDonResponse> responseList = lichSuHoaDonList.stream().map(lichSuHoaDon -> new LichSuHoaDonResponse(
-                lichSuHoaDon.getID(),
-                lichSuHoaDon.getNGAYTAO(),
-                lichSuHoaDon.getTRANGTHAI(),
-                lichSuHoaDon.getNGUOITHAOTAC(),
-                lichSuHoaDon.getHoaDon().getID()
-        )).toList();
-
-        return ResponseEntity.ok(responseList);
-    }
 }
+
+
+
+

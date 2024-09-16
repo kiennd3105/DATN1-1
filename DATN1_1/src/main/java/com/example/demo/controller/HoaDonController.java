@@ -20,7 +20,7 @@ public class HoaDonController {
     @Autowired
     private HoaDonRepo hoaDonRepo;
 
-    // Thêm
+    // Thêm hóa đơn mới
     @PostMapping("/add")
     public ResponseEntity<String> addHoaDon(@Valid @RequestBody HoaDonRepues hoaDonRequest, BindingResult result) {
         if (result.hasErrors()) {
@@ -39,8 +39,8 @@ public class HoaDonController {
             hoaDon.setLOAIHD(hoaDonRequest.getLOAIHD());
             hoaDon.setPHIVANCHUYEN(hoaDonRequest.getPHIVANCHUYEN());
             hoaDon.setTHONGTINGIAOHANG(hoaDonRequest.getTHONGTINGIAOHANG());
-            hoaDon.setIDNV(hoaDonRequest.getIDNV());
-            hoaDon.setIDKH(hoaDonRequest.getIDKH());
+            hoaDon.setIDNV((long) hoaDonRequest.getIDNV());
+            hoaDon.setIDKH((long) hoaDonRequest.getIDKH());
 
             hoaDonRepo.save(hoaDon);
             return ResponseEntity.ok("Thêm hóa đơn thành công!");
@@ -50,9 +50,9 @@ public class HoaDonController {
         }
     }
 
-    // Sửa
+    // Cập nhật hóa đơn
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateHoaDon(@PathVariable Integer id, @Valid @RequestBody HoaDonRepues hoaDonRequest, BindingResult result) {
+    public ResponseEntity<String> updateHoaDon(@PathVariable Long id, @Valid @RequestBody HoaDonRepues hoaDonRequest, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getFieldError().getDefaultMessage());
         }
@@ -71,8 +71,8 @@ public class HoaDonController {
                 hoaDon.setLOAIHD(hoaDonRequest.getLOAIHD());
                 hoaDon.setPHIVANCHUYEN(hoaDonRequest.getPHIVANCHUYEN());
                 hoaDon.setTHONGTINGIAOHANG(hoaDonRequest.getTHONGTINGIAOHANG());
-                hoaDon.setIDNV(hoaDonRequest.getIDNV());
-                hoaDon.setIDKH(hoaDonRequest.getIDKH());
+                hoaDon.setIDNV((long) hoaDonRequest.getIDNV());
+                hoaDon.setIDKH((long) hoaDonRequest.getIDKH());
 
                 hoaDonRepo.save(hoaDon);
                 return ResponseEntity.ok("Sửa hóa đơn thành công!");
@@ -84,9 +84,10 @@ public class HoaDonController {
             return ResponseEntity.badRequest().body("Không tìm thấy hóa đơn với ID: " + id);
         }
     }
-    //delete
+
+    // Xóa hóa đơn
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteHoaDon(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteHoaDon(@PathVariable Long id) {
         Optional<HoaDon> optionalHoaDon = hoaDonRepo.findById(id);
         if (optionalHoaDon.isPresent()) {
             try {
@@ -101,7 +102,7 @@ public class HoaDonController {
         }
     }
 
-    // load
+    // Lấy danh sách hóa đơn
     @GetMapping("/list")
     public ResponseEntity<List<HoaDon>> getHoaDonList() {
         try {
