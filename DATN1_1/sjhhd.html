@@ -1,0 +1,103 @@
+app.controller('banHangController', function ($scope, $http) {
+    $scope.hoaDonList = [];
+    $scope.hoaDonTabs = [];
+    $scope.selectedHoaDon = null;
+
+    // Tải danh sách hóa đơn
+    $scope.loadHoaDonList = function () {
+        $http.get("http://localhost:8080/api/hoadon/list")
+            .then(function success(response) {
+                $scope.hoaDonList = response.data;
+                $scope.hoaDonTabs = $scope.hoaDonList.filter(function(hoaDon) {
+                    return hoaDon.trangThai == 0;
+                });
+            }, function error(response) {
+                alert("Lỗi khi tải danh sách hóa đơn: " + response.statusText);
+            });
+    };
+
+    // Thêm hóa đơn mới
+    $scope.themHoaDon = function () {
+        var newInvoice = {
+            maHD: 'HD' + new Date().getTime().toString().slice(-6),
+            trangThai: 0,
+            chiTietList: [],
+            khachHang: {}
+        };
+
+        // Gửi yêu cầu tạo hóa đơn mới lên server
+        $http.post("http://localhost:8080/api/hoadon/add", newInvoice)
+            .then(function success(response) {
+                // Thêm hóa đơn mới vào đầu danh sách
+                $scope.hoaDonTabs.unshift(response.data);
+                $scope.selectHoaDonTab(response.data); // Tự động chọn tab hóa đơn vừa thêm
+
+                // Thêm vào lịch sử hóa đơn
+                $scope.themLichSu(response.data.maHD, 0); // Thêm vào lịch sử với trạng thái 0
+            }, function error(response) {
+                console.error(response);
+                alert("Lỗi khi tạo hóa đơn: " + response.statusText);
+            });
+    };
+
+    // Lưu lịch sử hóa đơn
+    $scope.themLichSu = function(maHD, trangThai) {
+        var lichSu = {
+            maHD: maHD,
+            ngayTao: new Date(),
+            trangThai: trangThai
+        };
+
+        // Gửi yêu cầu lưu lịch sử hóa đơn
+        $http.post("http://localhost:8080/api/lichsuhoadon/add", lichSu)
+            .then(function() {
+                console.log("Lịch sử hóa đơn đã được thêm thành công!");
+            }, function(error) {
+                console.error("Lỗi khi thêm lịch sử hóa đơn:", error);
+            });
+    };
+
+    // Xác nhận hủy hóa đơn
+    $scope.confirmCancel = function(hoaDon) {
+        if (confirm("Bạn có chắc chắn muốn hủy hóa đơn này không?")) {
+            $scope.hủyHoaDon(hoaDon);
+        }
+    };
+    
+    // Hủy hóa đơn
+    $scope.hủyHoaDon = function(hoaDon) {
+        console.log("Hóa đơn:", hoaDon); // Kiểm tra toàn bộ đối tượng hóa đơn
+        console.log("ID Hóa Đơn:", hoaDon.id); // Kiểm tra ID
+
+        var updatedData = {
+            idHD: hoaDon.id, 
+            maHD: hoaDon.maHD,
+            trangThai: 3 
+        };
+
+        // Gọi API cập nhật hóa đơn
+        $http.put('http://localhost:8080/api/hoadon/update/' + updatedData.idHD, updatedData)
+            .then(function(response) {
+                alert("Hóa đơn đã được hủy thành công!");
+                $scope.loadHoaDonList(); 
+
+                // Thêm vào lịch sử hóa đơn
+                $scope.themLichSu(hoaDon.maHD, 3); // Thêm vào lịch sử với trạng thái 3
+            }, function(error) {
+                let errorMessage = "Có lỗi xảy ra khi hủy hóa đơn!";
+                if (error.data && error.data.message) {
+                    errorMessage += " Chi tiết: " + error.data.message;
+                }
+                console.error("Lỗi chi tiết:", error);
+                alert(errorMessage);
+            });
+    };
+
+    // Chọn hóa đơn để hiển thị chi tiết
+    $scope.selectHoaDonTab = function(hoaDon) {
+        $scope.selectedHoaDon = hoaDon;
+    };
+
+    // Tải danh sách hóa đơn khi bắt đầu
+    $scope.loadHoaDonList();
+});
